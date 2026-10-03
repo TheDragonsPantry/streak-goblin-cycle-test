@@ -123,9 +123,7 @@ function calcStreak(a){
     let progress=base%length;
     if(base>0&&progress===0)progress=length;
     for(const [d,state] of entries){
-      // baseStreak already includes the base date when the app was created
-      // with today's completion; otherwise include a completion on baseDate.
-      if(d<baseDate || (d===baseDate && base>0 && state==='complete'))continue;
+      if(d<=baseDate)continue;
       if(state==='missed'){
         if(a.resetIfMissed!==false)progress=0;
         continue;
@@ -149,7 +147,7 @@ function dragOver(event){event.preventDefault();event.dataTransfer.dropEffect='m
 function dragLeave(event){if(!event.currentTarget.contains(event.relatedTarget))event.currentTarget.classList.remove('drag-over')}
 function dropApp(event,targetId){event.preventDefault();event.currentTarget.classList.remove('drag-over');const sourceId=draggedAppId||event.dataTransfer.getData('text/plain');if(!sourceId||sourceId===targetId)return;const from=apps.findIndex(a=>a.id===sourceId),to=apps.findIndex(a=>a.id===targetId);if(from<0||to<0)return;const [item]=apps.splice(from,1);apps.splice(to,0,item);save()}
 function render(){
- const done=apps.filter(a=>status(a,today())==='complete'||(Array.isArray(a.tasks)&&a.tasks.length>0&&a.tasks.every(t=>t.done))).length;
+ const done=apps.filter(a=>status(a,today())==='complete').length;
  dashboard.innerHTML=`<div class="stat"><span class="big">📱 ${done} / ${apps.length}</span><br><span class="meta">Today's apps completed</span></div>`;
  list.innerHTML=apps.length?apps.map(a=>`
  <div class="card ${a.collapsed?'collapsed':''}" data-app-id="${a.id}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropApp(event,'${a.id}')">
