@@ -123,7 +123,7 @@ function calcStreak(a){
     let progress=base%length;
     if(base>0&&progress===0)progress=length;
     for(const [d,state] of entries){
-      if(d<=baseDate)continue;
+      if(d<baseDate || (d===baseDate && base>0))continue;
       if(state==='missed'){
         if(a.resetIfMissed!==false)progress=0;
         continue;
@@ -226,7 +226,7 @@ function editApp(id){
 }
 function addEditTask(){const d=document.createElement('div');d.className='task-edit';d.innerHTML='<input type="text" placeholder="Another task"><button type="button" class="danger small" onclick="this.parentElement.remove()">×</button>';document.getElementById('editTasks').appendChild(d)}
 function saveEdit(id){
- const a=A(id);a.name=document.getElementById('en').value.trim()||a.name;const oldType=a.type;a.type=document.getElementById('etype').value;a.unit=document.querySelector('input[name=eunit]:checked')?.value||a.unit||'points';a.streakMode=document.getElementById('editStreakMode')?.value||'continuous';a.cycleLength=Math.max(1,Math.min(365,+(document.getElementById('editCycleLength')?.value||7)));a.resetIfMissed=document.getElementById('editResetIfMissed')?.checked??true;a.trackStreak=a.streakMode!=='none';a.baseStreak=+(document.getElementById('es').value||0);if(a.type==='rewards'||a.type==='receipts'){a.balance=+(document.getElementById('eb')?.value??a.balance??0);a.goal=+(document.getElementById('eg')?.value??a.goal??0)}
+ const a=A(id);a.name=document.getElementById('en').value.trim()||a.name;const oldType=a.type;a.type=document.getElementById('etype').value;a.unit=document.querySelector('input[name=eunit]:checked')?.value||a.unit||'points';const previousMode=a.streakMode||((a.trackStreak===false)?'none':'continuous');a.streakMode=document.getElementById('editStreakMode')?.value||'continuous';a.cycleLength=Math.max(1,Math.min(365,+(document.getElementById('editCycleLength')?.value||7)));a.resetIfMissed=document.getElementById('editResetIfMissed')?.checked??true;a.trackStreak=a.streakMode!=='none';a.baseStreak=+(document.getElementById('es').value||0);if(a.streakMode==='cycle'&&previousMode!=='cycle'){const dates=Object.keys(a.history||{}).sort();a.baseDate=dates.length?addDays(dates[0],-1):addDays(today(),-1);}if(a.type==='rewards'||a.type==='receipts'){a.balance=+(document.getElementById('eb')?.value??a.balance??0);a.goal=+(document.getElementById('eg')?.value??a.goal??0)}
  a.code=document.getElementById('ec').value.trim();a.link=document.getElementById('el').value.trim();
 
  a.tasks=[...document.querySelectorAll('#editTasks input')].map(x=>({id:x.dataset.id||crypto.randomUUID(),name:x.value.trim(),done:false})).filter(x=>x.name);
